@@ -1,18 +1,18 @@
 package com.example.demo.handler;
 
+import com.example.demo.packet.LoginCommandStruct;
 import com.example.demo.packet.MyPacket;
+import com.example.demo.packet.PacketContent;
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufAllocator;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
 
 import java.util.List;
 
-import static org.apache.coyote.http11.Constants.A;
 
 public class Byte2MessageDecoder extends ByteToMessageDecoder {
 
-    public final int MIN_LEN = 68;
+    public final int MIN_LEN = 34;
 
     public static final byte MSG_HEADER_FLAG = 0x01;
 
@@ -34,30 +34,53 @@ public class Byte2MessageDecoder extends ByteToMessageDecoder {
                 }
             }
             // 获取消息长度，并判断数据包是否已经按照协议到齐了，若没到齐，还原 readerIndex 并等待下一次 decode
-            int len = byteBuf.readInt();
-            if (byteBuf.readableBytes() < len + MIN_LEN) {
+            long len = byteBuf.readUnsignedIntLE();
+            if (byteBuf.readableBytes() < len + MIN_LEN - 5) {
                 byteBuf.resetReaderIndex();
                 return;
             }
             // 读取数据流
-            byte[] bytes = new byte[len + MIN_LEN];
-            byteBuf.readBytes(bytes);
-            MyPacket packet = readPacketFromBytes(bytes, len);
+            byteBuf.resetReaderIndex();
+            MyPacket packet = readPacketFromBytes(byteBuf);
+            System.out.println("接收到:" + packet.toString());
         }
     }
 
 
-    private MyPacket readPacketFromBytes(byte[] bytes, int len) {
-        ByteBuf byteBuf = ByteBufAllocator.DEFAULT.buffer(len + MIN_LEN);
-        byteBuf.writeBytes(bytes);
-        byte header = byteBuf.readByte();
-        int length = byteBuf.readIntLE();
-        int partInedx = byteBuf.readIntLE();
-        int partCount = byteBuf.readIntLE();
+    private MyPacket readPacketFromBytes(ByteBuf byteBuf) {
+        // 读byte流获取包头
+        byteBuf.readByte();
+        long length = byteBuf.readUnsignedIntLE();
+        long partIndex = byteBuf.readUnsignedIntLE();
+        long partCount = byteBuf.readUnsignedIntLE();
         byte version = byteBuf.readByte();
-        short command = byteBuf.readShortLE();
-        
-        MyPacket packet = new MyPacket();
+        int command = byteBuf.readUnsignedShortLE();
+        byte[] sessionID = new byte[16];
+        byteBuf.readBytes(sessionID);
+        // 获取包体
+        PacketContent packetContent;
+        packetContent = getPacketContent(byteBuf, command, length);
+
+        byte flag = byteBuf.readByte();
+        byteBuf.readByte();
+
+        // 构造包对象
+        MyPacket packet = new MyPacket(length, partIndex, partCount, version, command, sessionID, packetContent, flag);
         return packet;
+    }
+
+    // 根据命令类型构造包内容对象
+    private PacketContent getPacketContent(ByteBuf byteBuf, int command, long len) {
+        PacketContent result = null;
+        if (command == PacketContent.COMMAND_LOGIN) {   // 设备登录
+            result = LoginCommandStruct.ofByte(byteBuf);
+        }
+        if (command == PacketContent.COMMAND_HEART_BEAT) {  // 设备心跳
+
+        }
+        if (command == PacketContent.COMMAND_ON_DUTY) { // 人员考勤
+
+        }
+        return result;
     }
 }

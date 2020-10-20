@@ -5,26 +5,33 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode
-public class MyPacket {
+public class MyPacket<T extends PacketContent> {
 
-    private byte header;
+    private long length;
 
-    private int length;
+    private long partIndex;
 
-    private int partIndex;
-
-    private int partCount;
+    private long partCount;
 
     private byte version;
 
-    private short command;
+    private int command;
 
     private byte[] sessionID;
 
-    private byte[] content;
+    private T content;
 
     private byte flag;
 
-    private byte tail;
 
+    public MyPacket(long length, long partIndex, long partCount, byte version, int command, byte[] sessionID, T content, byte flag) {
+        this.length = length;
+        this.partIndex = partIndex;
+        this.partCount = partCount;
+        this.version = version;
+        this.command = command;
+        this.sessionID = sessionID;
+        this.content = content;
+        this.flag = flag;
+    }
 }
