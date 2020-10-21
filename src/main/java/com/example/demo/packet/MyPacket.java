@@ -7,6 +7,10 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode
 public class MyPacket<T extends PacketContent> {
 
+    public static final int HEADER_LENGTH = 32;
+
+    public static final int MIN_LENGTH = 34;
+
     private long length;
 
     private long partIndex;

@@ -1,8 +1,6 @@
 package com.example.demo.handler;
 
-import com.example.demo.packet.LoginCommandStruct;
-import com.example.demo.packet.MyPacket;
-import com.example.demo.packet.PacketContent;
+import com.example.demo.packet.*;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
@@ -34,7 +32,7 @@ public class Byte2MessageDecoder extends ByteToMessageDecoder {
                 }
             }
             // 获取消息长度，并判断数据包是否已经按照协议到齐了，若没到齐，还原 readerIndex 并等待下一次 decode
-            long len = byteBuf.readUnsignedIntLE();
+            int len = (int) byteBuf.readUnsignedIntLE();
             if (byteBuf.readableBytes() < len + MIN_LEN - 5) {
                 byteBuf.resetReaderIndex();
                 return;
@@ -43,6 +41,7 @@ public class Byte2MessageDecoder extends ByteToMessageDecoder {
             byteBuf.resetReaderIndex();
             MyPacket packet = readPacketFromBytes(byteBuf);
             System.out.println("接收到:" + packet.toString());
+            list.add(packet);
         }
     }
 
@@ -50,9 +49,9 @@ public class Byte2MessageDecoder extends ByteToMessageDecoder {
     private MyPacket readPacketFromBytes(ByteBuf byteBuf) {
         // 读byte流获取包头
         byteBuf.readByte();
-        long length = byteBuf.readUnsignedIntLE();
-        long partIndex = byteBuf.readUnsignedIntLE();
-        long partCount = byteBuf.readUnsignedIntLE();
+        int length = (int)byteBuf.readUnsignedIntLE();
+        int partIndex = (int)byteBuf.readUnsignedIntLE();
+        int partCount = (int)byteBuf.readUnsignedIntLE();
         byte version = byteBuf.readByte();
         int command = byteBuf.readUnsignedShortLE();
         byte[] sessionID = new byte[16];
@@ -70,16 +69,19 @@ public class Byte2MessageDecoder extends ByteToMessageDecoder {
     }
 
     // 根据命令类型构造包内容对象
-    private PacketContent getPacketContent(ByteBuf byteBuf, int command, long len) {
+    private PacketContent getPacketContent(ByteBuf byteBuf, int command, int len) {
         PacketContent result = null;
         if (command == PacketContent.COMMAND_LOGIN) {   // 设备登录
-            result = LoginCommandStruct.ofByte(byteBuf);
+            result = LoginCommandReq.ofByte(byteBuf, len);
         }
         if (command == PacketContent.COMMAND_HEART_BEAT) {  // 设备心跳
-
+            System.out.println("心跳检测：" + System.currentTimeMillis());
+        }
+        if (command == PacketContent.COMMAND_PERSON_INFO) { // 人员特征信息
+            result = PersonInfoCommandReq.ofByte(byteBuf, len);
         }
         if (command == PacketContent.COMMAND_ON_DUTY) { // 人员考勤
-
+            result = OnDutyCommandReq.ofByte(byteBuf,len);
         }
         return result;
     }
