@@ -10,11 +10,13 @@ import java.util.ArrayList;
 
 public class demo {
     public static void main(String[] args) throws Exception {
-        byte[] rawData = hexStr2Byte("01410000000000000000000000014B031B00ED8B91D23143AFE845EAA4F7EFCF31323334353637383931323334353637313233343536373839313233343536374543314439343933344536393434454439303834424531313133433230395A48610001");
-        System.out.println();
-        Byte2MessageDecoder decoder = new Byte2MessageDecoder();
-        ByteBuf byteBuf = ByteBufAllocator.DEFAULT.buffer().writeBytes(rawData);
-        decoder.decode(null, byteBuf, new ArrayList<>());
+//        byte[] rawData = hexStr2Byte("E99D9EE69CACE7B3BBE7BB9FE9A1B9E79BAE");
+//        System.out.println(new String(rawData, "UTF-8"));
+//        byte[] rawData = hexStr2Byte("01410000000000000000000000014B031B00ED8B91D23143AFE845EAA4F7EFCF31323334353637383931323334353637313233343536373839313233343536374543314439343933344536393434454439303834424531313133433230395A48610001");
+//        System.out.println();
+//        Byte2MessageDecoder decoder = new Byte2MessageDecoder();
+//        ByteBuf byteBuf = ByteBufAllocator.DEFAULT.buffer().writeBytes(rawData);
+//        decoder.decode(null, byteBuf, new ArrayList<>());
     }
 
     public static byte[] hexStr2Byte(String hex) {

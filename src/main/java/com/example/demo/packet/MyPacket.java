@@ -38,4 +38,6 @@ public class MyPacket<T extends PacketContent> {
         this.content = content;
         this.flag = flag;
     }
+
+
 }

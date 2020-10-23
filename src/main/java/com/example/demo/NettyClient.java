@@ -1,5 +1,6 @@
 package com.example.demo;
 
+import com.example.demo.handler.TestClientHandler;
 import com.example.demo.utils.PacketUtil;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
@@ -20,7 +21,7 @@ public class NettyClient {
 
     private final int port;
 
-    private ChannelFuture cf;
+    private Channel ch;
 
     public NettyClient(String host, int port) {
         this.host = host;
@@ -37,27 +38,23 @@ public class NettyClient {
                     .handler(new ChannelInitializer<SocketChannel>() {
                         @Override
                         protected void initChannel(SocketChannel ch) throws Exception {
-                            ch.pipeline().addLast();
+//                            ch.pipeline().addLast(new TestClientHandler());
                         }
                     });
             ChannelFuture f = b.connect().sync();
-            cf = f;
             f.channel().closeFuture().sync();
         } finally {
             group.shutdownGracefully().sync();
         }
     }
 
-    public void sendMsg(Object msg) {
-        this.cf.channel().writeAndFlush(msg);
-    }
 
     public static void main(String[] args) throws InterruptedException {
         NettyClient client = new NettyClient("127.0.0.1", 8911);
         client.start();
-        byte[] rawData = PacketUtil.hexStr2Byte("01410000000000000000000000014B031B00ED8B91D23143AFE845EAA4F7EFCF31323334353637383931323334353637313233343536373839313233343536374543314439343933344536393434454439303834424531313133433230395A48610001");
-        ByteBuf byteBuf = ByteBufAllocator.DEFAULT.buffer().writeBytes(rawData);
-        client.sendMsg(byteBuf);
+//        byte[] rawData = PacketUtil.hexStr2Byte("01410000000000000000000000014B031B00ED8B91D23143AFE845EAA4F7EFCF31323334353637383931323334353637313233343536373839313233343536374543314439343933344536393434454439303834424531313133433230395A48610001");
+//        ByteBuf byteBuf = ByteBufAllocator.DEFAULT.buffer().writeBytes(rawData);
+//        client.sendMsg(byteBuf);
     }
 
 }

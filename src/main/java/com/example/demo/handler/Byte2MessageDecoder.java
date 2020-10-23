@@ -40,7 +40,7 @@ public class Byte2MessageDecoder extends ByteToMessageDecoder {
             // 读取数据流
             byteBuf.resetReaderIndex();
             MyPacket packet = readPacketFromBytes(byteBuf);
-            System.out.println("接收到:" + packet.toString());
+//            System.out.println("接收到:" + packet.toString());
             list.add(packet);
         }
     }
