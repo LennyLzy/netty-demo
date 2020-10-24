@@ -1,6 +1,9 @@
 package com.netty;
 
+import com.example.demo.handler.TestClientHandler;
 import com.example.demo.utils.PacketUtil;
+import com.netty.handler.AttendancePacketDecoder;
+import com.netty.handler.AttendancePacketEncoder;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
@@ -36,7 +39,9 @@ public class NettyClient {
                 .handler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     protected void initChannel(SocketChannel ch) throws Exception {
-//                            ch.pipeline().addLast(new TestClientHandler());
+                            ch.pipeline()
+                                    .addFirst(new AttendancePacketDecoder())
+                                    .addLast(new AttendancePacketEncoder());
                     }
                 });
         ChannelFuture f = b.connect().sync();
@@ -62,11 +67,13 @@ public class NettyClient {
     }
 
     public static void main(String[] args) throws InterruptedException {
-        NettyClient client = new NettyClient("127.0.0.1", 8911);
+//        NettyClient client = new NettyClient("127.0.0.1", 8911);
+        NettyClient client = new NettyClient("157.122.146.230", 9720);
         byte[] rawData = PacketUtil.hexStr2Byte("01410000000000000000000000014B031B00ED8B91D23143AFE845EAA4F7EFCF31323334353637383931323334353637313233343536373839313233343536374543314439343933344536393434454439303834424531313133433230395A48610001");
 //        ByteBuf byteBuf = ByteBufAllocator.DEFAULT.buffer().writeBytes(rawData);
         ByteBuf byteBuf = Unpooled.buffer().writeBytes(rawData);
-        client.connect().sendMsg(byteBuf);
+        ChannelFuture cf = client.connect().sendMsg(byteBuf);
+        cf.channel().closeFuture().sync();
         client.destroy();
     }
 }

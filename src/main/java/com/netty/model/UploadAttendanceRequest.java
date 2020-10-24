@@ -11,6 +11,8 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode
 public class UploadAttendanceRequest extends CommandContent {
 
+    public static final int COMMAND_ID = 848;
+
     private long workerId;
 
     private String time;
@@ -30,6 +32,17 @@ public class UploadAttendanceRequest extends CommandContent {
         this.imageLength = imageLength;
         this.image = image;
         this.XOR = ByteUtils.getXOR(this.toByte());
+    }
+
+    public static CommandContent ofByte(ByteBuf byteBuf, long length) {
+        if (length > 0) {
+            boolean flag = checkXOR(byteBuf, length);
+            if (!flag) {
+                byteBuf.skipBytes((int) length + 2);
+                return null;
+            }
+        }
+        return null;
     }
 
     @Override

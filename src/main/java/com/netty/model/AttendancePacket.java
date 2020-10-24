@@ -6,6 +6,8 @@ public class AttendancePacket<T extends CommandContent> {
 
     public static final int MIN_LENGTH = 34;
 
+    public static final byte MSG_HEADER_FLAG = 0x01;
+
     private long length;
 
     private long partIndex;

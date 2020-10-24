@@ -1,12 +1,16 @@
 package com.netty.model;
 
 import com.netty.utils.ByteUtils;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode
 public class GetPersonInfoRequest extends CommandContent {
+
+    public static final int COMMAND_ID = 845;
 
     private String deviceCode;
 
@@ -27,6 +31,9 @@ public class GetPersonInfoRequest extends CommandContent {
 
     @Override
     public byte[] toByte() {
-        return new byte[0];
+        ByteBuf byteBuf = Unpooled.buffer();
+        byteBuf.writeBytes(this.deviceCode.getBytes());
+        byteBuf.writeBytes(this.identityNo.getBytes());
+        return byteBuf.array();
     }
 }

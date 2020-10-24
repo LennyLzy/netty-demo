@@ -2,6 +2,7 @@ package com.netty.handler;
 
 import com.netty.model.AttendancePacket;
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
 
@@ -9,6 +10,20 @@ public class AttendancePacketEncoder extends MessageToByteEncoder<AttendancePack
 
     @Override
     protected void encode(ChannelHandlerContext channelHandlerContext, AttendancePacket attendancePacket, ByteBuf byteBuf) throws Exception {
-
+        ByteBuf target = Unpooled.buffer();
+        target.writeByte(AttendancePacket.MSG_HEADER_FLAG);
+        target.writeLongLE(attendancePacket.getLength()).writerIndex(-4);
+        target.writeLongLE(attendancePacket.getPartIndex()).writerIndex(-4);
+        target.writeLongLE(attendancePacket.getPartCount()).writerIndex(-4);
+        target.writeByte(attendancePacket.getVersion());
+        target.writeShortLE(attendancePacket.getCommand());
+        target.writeBytes(attendancePacket.getSessionID());
+        target.writeBytes(attendancePacket.getContent().toByte());
+        target.writeByte(attendancePacket.getContent().getXOR());
+        target.writeByte(attendancePacket.getFlag());
+        target.writeByte(AttendancePacket.MSG_HEADER_FLAG);
+//        System.out.println(target.array().toString());
+        byteBuf.writeBytes(target);
     }
+
 }
