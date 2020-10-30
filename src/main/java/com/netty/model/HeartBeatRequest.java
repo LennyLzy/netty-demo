@@ -15,11 +15,11 @@ public class HeartBeatRequest extends CommandContent {
 
     @Override
     public byte[] toByte() {
-        return new byte[0];
+        return null;
     }
 
     @Override
-    public byte getXOR() {
-        return 0;
+    public Byte getXOR() {
+        return null;
     }
 }

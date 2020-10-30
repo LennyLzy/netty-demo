@@ -1,5 +1,10 @@
 package com.netty.model;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
+@Data
+@EqualsAndHashCode
 public class AttendancePacket<T extends CommandContent> {
 
     public static final int HEADER_LENGTH = 32;
@@ -36,7 +41,7 @@ public class AttendancePacket<T extends CommandContent> {
     }
 
     public AttendancePacket(long length, int command, byte[] sessionID, T content, byte flag) {
-        new AttendancePacket(length, 0, 0, (byte) 1, command, sessionID, content, flag);
+        this(length, 0, 0, (byte) 1, command, sessionID, content, flag);
     }
 
     public long getLength() {

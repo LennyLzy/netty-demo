@@ -98,8 +98,11 @@ public class PersonInfoResponse extends CommandContent {
 
     @Override
     public byte[] toByte() {
-        ByteBuf byteBuf = Unpooled.buffer();
+        return null;
+    }
 
-        return byteBuf.array();
+    @Override
+    public Byte getXOR() {
+        return this.XOR;
     }
 }

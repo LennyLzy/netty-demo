@@ -2,7 +2,6 @@ package com.netty.model;
 
 import com.netty.utils.ByteUtils;
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -11,6 +10,8 @@ import lombok.EqualsAndHashCode;
 public class LoginRequest extends CommandContent {
 
     public static final int COMMAND_ID = 843;
+
+    public static final long CONTENT_LENGTH = 65;
 
     private String factoryCode;
 
@@ -33,7 +34,6 @@ public class LoginRequest extends CommandContent {
         if (length > 0) {
             boolean flag = checkXOR(byteBuf, length);
             if (!flag) {
-                byteBuf.skipBytes((int) length + 2);
                 return null;
             }
             byte[] temp = new byte[32];
@@ -54,9 +54,11 @@ public class LoginRequest extends CommandContent {
 
     @Override
     public byte[] toByte() {
-        ByteBuf byteBuf = Unpooled.buffer();
-        byteBuf.writeBytes(this.factoryCode.getBytes());
-        byteBuf.writeBytes(this.deviceCode.getBytes());
-        return byteBuf.array();
+        return (this.factoryCode + this.deviceCode).getBytes();
+    }
+
+    @Override
+    public Byte getXOR() {
+        return this.XOR;
     }
 }

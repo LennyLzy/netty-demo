@@ -1,7 +1,6 @@
 package com.netty.model;
 
-import com.example.demo.packet.MyPacket;
-import com.example.demo.utils.PacketUtil;
+import com.netty.utils.ByteUtils;
 import io.netty.buffer.ByteBuf;
 
 public abstract class CommandContent {
@@ -12,7 +11,7 @@ public abstract class CommandContent {
         byte[] contentByte = new byte[(int)len - 1];
         byteBuf.getBytes(AttendancePacket.HEADER_LENGTH, contentByte);
 
-        if (PacketUtil.getXOR(contentByte) != rawXOR) {
+        if (ByteUtils.getXOR(contentByte) != rawXOR) {
             return false;
         }
         return true;
@@ -20,5 +19,5 @@ public abstract class CommandContent {
 
     public abstract byte[] toByte();
 
-    public abstract byte getXOR();
+    public abstract Byte getXOR();
 }

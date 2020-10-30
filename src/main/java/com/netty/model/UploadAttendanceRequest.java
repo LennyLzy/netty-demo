@@ -48,11 +48,20 @@ public class UploadAttendanceRequest extends CommandContent {
     @Override
     public byte[] toByte() {
         ByteBuf byteBuf = Unpooled.buffer();
-        byteBuf.writeLongLE(this.workerId).writerIndex(-4);
+        byteBuf.writeLongLE(this.workerId);
+        byteBuf.writerIndex(byteBuf.writerIndex() - 4);
         byteBuf.writeBytes(ByteUtils.StrToBCDBytes(this.time));
         byteBuf.writeByte(this.type);
-        byteBuf.writeLongLE(this.imageLength).writerIndex(-4);
+        byteBuf.writeLongLE(this.imageLength);
+        byteBuf.writerIndex(byteBuf.writerIndex() - 4);
         byteBuf.writeBytes(this.image);
-        return byteBuf.array();
+        byte[] result = new byte[byteBuf.readableBytes()];
+        byteBuf.readBytes(result);
+        return result;
+    }
+
+    @Override
+    public Byte getXOR() {
+        return this.XOR;
     }
 }

@@ -6,6 +6,11 @@ import java.nio.ByteBuffer;
 
 public class ByteUtils {
 
+    /**
+     * 计算校验和
+     * @param bytes
+     * @return
+     */
     public static byte getXOR(byte[] bytes){
         byte temp = bytes[0];
         for (int i = 1; i < bytes.length; i++) {
@@ -14,7 +19,12 @@ public class ByteUtils {
         return temp;
     }
 
-    public static String BCDToString(byte[] bytes){
+    /**
+     * 字节数组以BCD解码为字符串
+     * @param bytes
+     * @return
+     */
+    public static String BCDBytesToString(byte[] bytes){
         StringBuffer temp = new StringBuffer(bytes.length * 2);
         for (int i = 0; i <bytes.length; i++) {
             temp.append((byte) ((bytes[i] & 0xf0) >>> 4));
@@ -24,6 +34,11 @@ public class ByteUtils {
                 .toString().substring(1) : temp.toString();
     }
 
+    /**
+     * 字符串BCD编码为字节数组
+     * @param s
+     * @return
+     */
     public static byte [] StrToBCDBytes(String s)
     {
 
@@ -43,7 +58,12 @@ public class ByteUtils {
     }
 
 
-    public static byte[] hexStr2Byte(String hex) {
+    /**
+     * 16进制字符串转字节数组
+     * @param hex
+     * @return
+     */
+    public static byte[] hexStrToByte(String hex) {
         ByteBuffer bf = ByteBuffer.allocate(hex.length() / 2);
         for (int i = 0; i < hex.length(); i++) {
             String hexStr = hex.charAt(i) + "";
@@ -55,18 +75,32 @@ public class ByteUtils {
         return bf.array();
     }
 
+    /**
+     * 字节数组以ASCII码转字符串
+     * @param bytes
+     * @return
+     */
     public static String byteToString(byte[] bytes){
         return new String(bytes);
     }
 
-    public static String byteToUTF8(byte[] bytes) throws UnsupportedEncodingException {
-        return new String(bytes,"UTF-8");
-    }
-
+    /**
+     * 字符串转ASCII码字节数组
+     * @param str
+     * @return
+     */
     public static byte[] stringToByte(String str){
         return str.getBytes();
     }
 
-
+    /**
+     * 字节数组以UTF-8转为字符串
+     * @param bytes
+     * @return
+     * @throws UnsupportedEncodingException
+     */
+    public static String byteToUTF8(byte[] bytes) throws UnsupportedEncodingException {
+        return new String(bytes,"UTF-8");
+    }
 
 }

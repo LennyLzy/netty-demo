@@ -1,7 +1,9 @@
 package com.netty.handler;
 
+import com.netty.model.ExceptionContent;
 import com.netty.model.*;
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
 
@@ -66,17 +68,23 @@ public class AttendancePacketDecoder extends ByteToMessageDecoder {
         byteBuf.readBytes(sessionID);
         // 读取包内容
         CommandContent content = null;
+        byte[] contentBytes = new byte[(int) length];
+        byteBuf.readBytes(contentBytes);
+        ByteBuf contentBuf = Unpooled.wrappedBuffer(contentBytes);
+        byte flag = byteBuf.readByte();
+        byteBuf.readByte();
         try {
-            content = decodeCommandContent(byteBuf, command, length);
+            content = decodeCommandContent(contentBuf, command, length, flag);
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-        byte flag = byteBuf.readByte();
-        byteBuf.readByte();
-        return new AttendancePacket(length,command,sessionID,content,flag);
+        return new AttendancePacket(length, command, sessionID, content, flag);
     }
 
-    private CommandContent decodeCommandContent(ByteBuf byteBuf, int command, long length) throws UnsupportedEncodingException {
+    private CommandContent decodeCommandContent(ByteBuf byteBuf, int command, long length, byte flag) throws UnsupportedEncodingException {
+        if (flag == 0x01) {
+            return ExceptionContent.ofByte(byteBuf, length);
+        }
         if (command == LoginRequest.COMMAND_ID) {
             return LoginRequest.ofByte(byteBuf, length);
         }

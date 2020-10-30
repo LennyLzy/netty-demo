@@ -12,6 +12,8 @@ public class GetPersonInfoRequest extends CommandContent {
 
     public static final int COMMAND_ID = 845;
 
+    public static final long CONTENT_LENGTH = 51;
+
     private String deviceCode;
 
     private String identityNo;
@@ -31,9 +33,11 @@ public class GetPersonInfoRequest extends CommandContent {
 
     @Override
     public byte[] toByte() {
-        ByteBuf byteBuf = Unpooled.buffer();
-        byteBuf.writeBytes(this.deviceCode.getBytes());
-        byteBuf.writeBytes(this.identityNo.getBytes());
-        return byteBuf.array();
+        return (this.deviceCode + this.identityNo).getBytes();
+    }
+
+    @Override
+    public Byte getXOR() {
+        return this.XOR;
     }
 }
