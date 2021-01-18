@@ -15,6 +15,7 @@ public class UploadAttendanceRequest extends CommandContent {
 
     private long workerId;
 
+    // YYYYMMDDHHmmss
     private String time;
 
     private byte type;

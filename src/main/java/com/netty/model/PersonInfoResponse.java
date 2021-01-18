@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 
 @Data
 @EqualsAndHashCode
@@ -72,20 +73,23 @@ public class PersonInfoResponse extends CommandContent {
                 return null;
             }
             long workerId = byteBuf.readUnsignedIntLE();
-            String name = new String(byteBuf.readBytes(30).array(), "UTF-8");
-            String identityNo = new String(byteBuf.readBytes(18).array());
+            String name = byteBuf.readBytes(30).toString(Charset.forName("UTF-8"));
+            String identityNo = byteBuf.readBytes(18).toString(Charset.forName("UTF-8"));
             byte nation = byteBuf.readByte();
-            String sex = new String(byteBuf.readBytes(2).array());
-            String address = new String(byteBuf.readBytes(140).array(), "UTF-8");
-            String birth = new String(byteBuf.readBytes(16).array());
-            String organization = new String(byteBuf.readBytes(60).array(), "UTF-8");
-            String periodOfValidity = new String(byteBuf.readBytes(64).array(), "UTF-8");
+            String sex = byteBuf.readBytes(2).toString(Charset.forName("UTF-8"));
+            String address = byteBuf.readBytes(140).toString(Charset.forName("UTF-8"));
+            String birth = byteBuf.readBytes(16).toString(Charset.forName("UTF-8"));
+            String organization = byteBuf.readBytes(60).toString(Charset.forName("UTF-8"));
+            String periodOfValidity = byteBuf.readBytes(64).toString(Charset.forName("UTF-8"));
             long collectedPhotoLen = byteBuf.readUnsignedIntLE();
-            byte[] collectedPhoto = byteBuf.readBytes((int) collectedPhotoLen).array();
+            byte[] collectedPhoto = new byte[(int) collectedPhotoLen];
+            byteBuf.readBytes(collectedPhoto);
             long identityCardPhotoLen = byteBuf.readUnsignedIntLE();
-            byte[] identityCardPhoto = byteBuf.readBytes((int) identityCardPhotoLen).array();
+            byte[] identityCardPhoto = new byte[(int) identityCardPhotoLen];
+            byteBuf.readBytes(identityCardPhoto);
             long infraredPhotoLen = byteBuf.readUnsignedIntLE();
-            byte[] infraredPhoto = byteBuf.readBytes((int) infraredPhotoLen).array();
+            byte[] infraredPhoto = new byte[(int) infraredPhotoLen];
+            byteBuf.readBytes(infraredPhoto);
             byte XOR = byteBuf.readByte();
 
             return new PersonInfoResponse(workerId, name, identityNo, nation,

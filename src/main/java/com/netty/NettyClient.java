@@ -2,9 +2,7 @@ package com.netty;
 
 import com.netty.handler.AttendancePacketDecoder;
 import com.netty.handler.AttendancePacketEncoder;
-import com.netty.model.AttendancePacket;
-import com.netty.model.HeartBeatRequest;
-import com.netty.model.LoginRequest;
+import com.netty.model.*;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.group.ChannelGroup;
@@ -19,7 +17,14 @@ import io.netty.util.concurrent.ScheduledFuture;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
@@ -105,18 +110,63 @@ public class NettyClient {
         this.group.shutdownGracefully().sync();
     }
 
+//    public static void main(String[] args) throws InterruptedException, ExecutionException {
+////        NettyClient client = new NettyClient("127.0.0.1", 8911);
+//        NettyClient client = new NettyClient("157.122.146.230", 9720);
+////        byte[] rawData = ByteUtils.hexStr2Byte("01410000000000000000000000014B031B00ED8B91D23143AFE845EAA4F7EFCF31323334353637383931323334353637313233343536373839313233343536374543314439343933344536393434454439303834424531313133433230395A48610001");
+////        ByteBuf byteBuf = ByteBufAllocator.DEFAULT.buffer().writeBytes(rawData);
+////        ByteBuf byteBuf = Unpooled.buffer().writeBytes(rawData);
+//        byte[] sessionID = {27, 0, -19, -117, -111, -46, 49, 67, -81, -24, 69, -22, -92, -9, -17, -49};
+//        LoginRequest request = new LoginRequest("I61lHvGy4IgURqk4HF2w3Dq7BYZafVVO", "I61lHvGy4IgURqk4HF2w3Dq7BYZafV66");
+//        AttendancePacket packet = new AttendancePacket(LoginRequest.CONTENT_LENGTH, LoginRequest.COMMAND_ID, sessionID, request, (byte) 0);
+//        client.connect();
+//        AttendancePacket response = (AttendancePacket)client.sendMsg(packet);
+//        System.out.println(response);
+//        client.destroy();
+//    }
+
     public static void main(String[] args) throws InterruptedException, ExecutionException {
-//        NettyClient client = new NettyClient("127.0.0.1", 8911);
         NettyClient client = new NettyClient("157.122.146.230", 9720);
-//        byte[] rawData = ByteUtils.hexStr2Byte("01410000000000000000000000014B031B00ED8B91D23143AFE845EAA4F7EFCF31323334353637383931323334353637313233343536373839313233343536374543314439343933344536393434454439303834424531313133433230395A48610001");
-//        ByteBuf byteBuf = ByteBufAllocator.DEFAULT.buffer().writeBytes(rawData);
-//        ByteBuf byteBuf = Unpooled.buffer().writeBytes(rawData);
         byte[] sessionID = {27, 0, -19, -117, -111, -46, 49, 67, -81, -24, 69, -22, -92, -9, -17, -49};
-        LoginRequest request = new LoginRequest("I61lHvGy4IgURqk4HF2w3Dq7BYZafVVO", "I61lHvGy4IgURqk4HF2w3Dq7BYZafV66");
+        LoginRequest request = new LoginRequest("19024AE5C44B4A2F8B732ECEF24304AF", "adfd95a4b3634b58b0cf3b8c67b18a29");
         AttendancePacket packet = new AttendancePacket(LoginRequest.CONTENT_LENGTH, LoginRequest.COMMAND_ID, sessionID, request, (byte) 0);
         client.connect();
+        client.sendMsg(packet);
         AttendancePacket response = (AttendancePacket)client.sendMsg(packet);
-        System.out.println(response);
+
+
+        AttendancePacket<GetPersonInfoRequest> packet1 = GetPersonInfoRequest.packet("adfd95a4b3634b58b0cf3b8c67b18a29", "441827196807267501", sessionID);
+        AttendancePacket personInfoResponse = (AttendancePacket) client.sendMsg(packet1);
+        PersonInfoResponse content = (PersonInfoResponse) personInfoResponse.getContent();
+
+        byte[] jpgs = NettyClient.getImageBinary("F:\\workspace\\netty-demo\\src\\main\\resources\\微信图片_20201230100715.jpg", "jpg");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyMMddHHmmss");
+        String format = dateFormat.format(new Date());
+        UploadAttendanceRequest uploadAttendanceRequest = new UploadAttendanceRequest(content.getWorkerId(),format,jpgs.length,jpgs);
+        AttendancePacket attendancePacket = new AttendancePacket(uploadAttendanceRequest.toByte().length,UploadAttendanceRequest.COMMAND_ID,sessionID,uploadAttendanceRequest,(byte) 0);
+        Object o = client.sendMsg(attendancePacket);
+        System.out.println(o.toString());
         client.destroy();
+
+
+    }
+
+
+
+    public  static byte[] getImageBinary(String path, String imgType) {
+        File f = new File(path);
+        BufferedImage bi;
+        try {
+            bi = ImageIO.read(f);
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ImageIO.write(bi, imgType, baos);  //经测试转换的图片是格式这里就什么格式，否则会失真
+            byte[] bytes = baos.toByteArray();
+
+            return bytes;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+
     }
 }
